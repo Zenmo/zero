@@ -10,11 +10,11 @@ export const OtherVehicles: FunctionComponent<{ form: UseFormReturn, prefix: str
         <>
             <h3>Andere voertuigen</h3>
             <BooleanRow
-                label="Hebben jullie nog andere voertuigen zoals heftrucks of shovels?"
+                label="Heeft u nog andere voertuigen zoals heftrucks of shovels?"
                 name={`${prefix}.hasOtherVehicles`}
                 form={form} />
             {watch(`${prefix}.hasOtherVehicles`) > 0 && (
-                <LabelRow label="In hoeverre zijn deze andere voertuigen elektrisch?">
+                <LabelRow label="In hoeverre zijn deze voertuigen elektrisch?">
                     <div style={{display: 'flex'}}>
                         <Controller
                             control={form.control}

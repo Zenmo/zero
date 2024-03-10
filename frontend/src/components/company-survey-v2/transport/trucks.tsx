@@ -11,7 +11,7 @@ export const Trucks = ({form, prefix, project}: { form: UseFormReturn, prefix: s
         <>
             <h3>Vrachtwagens</h3>
             <NumberRow
-                label="Hoeveel vrachtwagens (die niet mee naar huis gaan) hebben jullie in gebruik?"
+                label="Aantal vrachtwagens (die niet mee naar huis gaan)?"
                 name={`${prefix}.numTrucks`}
                 form={form} />
             {numTrucks > 0 && (
@@ -21,7 +21,7 @@ export const Trucks = ({form, prefix, project}: { form: UseFormReturn, prefix: s
                         name={`${prefix}.numElectricTrucks`}
                         form={form} />
                     <NumberRow
-                        label="Hoeveel laadpunten voor elektrische vrachtwagens hebben jullie?"
+                        label="Hoeveel laadpunten voor elektrische vrachtwagens zijn er?"
                         name={`${prefix}.numChargePoints`}
                         form={form} />
                     <NumberRow
@@ -30,17 +30,17 @@ export const Trucks = ({form, prefix, project}: { form: UseFormReturn, prefix: s
                         form={form}
                         suffix="kW" />
                     <NumberRow
-                        label="Hoeveel rijden jullie vrachtwagens gemiddeld per jaar (grove inschatting)?"
+                        label="Hoeveel rijden uw vrachtwagens gemiddeld per jaar (grove inschatting)?"
                         name={`${prefix}.annualTravelDistancePerTruckKm`}
                         form={form}
                         suffix="km" />
                     <NumberRow
-                        label="Hoeveel van de brandstof vrachtwagens zijn jullie van plan te elektrificeren de komende 5 jaar?"
+                        label="Hoeveel van de brandstof vrachtwagens bent u van plan te elektrificeren de komende 5 jaar?"
                         name={`${prefix}.numPlannedElectricTrucks`}
                         form={form} />
                     {project === 'De Wieken' && (
                         <NumberRow
-                            label="Hoeveel van de brandstof vrachtwagens zijn jullie van plan aan te drijven met waterstof de komende 5 jaar?"
+                            label="Hoeveel van de brandstof vrachtwagens bent u van plan aan te drijven met waterstof de komende 5 jaar?"
                             name={`${prefix}.numPlannedHydrogenTrucks`}
                             form={form} />
                     )}
