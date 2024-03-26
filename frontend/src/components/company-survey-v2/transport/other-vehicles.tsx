@@ -14,24 +14,10 @@ export const OtherVehicles: FunctionComponent<{ form: UseFormReturn, prefix: str
                 name={`${prefix}.hasOtherVehicles`}
                 form={form} />
             {watch(`${prefix}.hasOtherVehicles`) > 0 && (
-                <LabelRow label="In hoeverre zijn deze voertuigen elektrisch?">
-                    <div style={{display: 'flex'}}>
-                        <Controller
-                            control={form.control}
-                            name={`${prefix}.electricRatio`}
-                            render={({field: {onChange, value}}) => (
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="1"
-                                    step="0.01"
-                                    value={value ?? 0}
-                                    onChange={e => onChange(e.target.value)}/>
-                            )}
-                        />
-                        <span>&nbsp;&nbsp;{Math.round(watch(`${prefix}.electricRatio`, 0) * 100)} %</span>
-                    </div>
-                </LabelRow>
+                <TextAreaRow
+                label="Kunt u kort toelichten wat voor voertuigen dat zijn, hoe ze ongeveer ingezet worden, hoeveel, en de elektrificatie(plannen)?"
+                form={form}
+                name={`${prefix}.expansionPlans`} />
             )}
         </>
     )

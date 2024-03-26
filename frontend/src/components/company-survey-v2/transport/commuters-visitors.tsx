@@ -17,7 +17,7 @@ export const CommutersVisitors: FunctionComponent<{ form: UseFormReturn, prefix:
             name={`${prefix}.numDailyCarVisitors`}
             form={form}/>
         <NumberRow
-            label="Hoeveel laadpunten zijn er specifiek voor woon-werkverkeer en bezoekers?"
+            label="Hoeveel laadpunten heeft u specifiek voor woon-werkverkeer en bezoekers?"
             name={`${prefix}.numCommuterAndVisitorChargePoints`}
             form={form}/>
     </>

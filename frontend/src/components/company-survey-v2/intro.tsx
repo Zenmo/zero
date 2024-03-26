@@ -32,12 +32,12 @@ export const Intro: FunctionComponent<{project: ProjectConfiguration}> = ({proje
             <p>
                 Het invullen zal circa 10 tot 20 minuten duren. Echter, het is mogelijk dat het één en ander 
                 opgezocht moet worden. Bijvoorbeeld het gecontracteerd (teruglever)vermogen, inloggegevens van uw
-                meetbedrijf, of het aantal vrachtwagens. Ook bij de paar bedrijven met meerdere netaansluitingen zal 
+                meetbedrijf of het aantal vrachtwagens. Ook bij de paar bedrijven met meerdere netaansluitingen zal 
                 het wat meer tijd kosten. 
             </p>
             <p>
-                Als u aanvullende energiedynamieken kunt benoemen, dan kunt u via de mail ter attentie brengen
-                via <a href={`mailto:${project.email}`}>{project.email}</a>. We kunnen uw situatie dan nog realistischer meenemen
+                Als u aanvullende energiedynamieken wilt benoemen, dan kunt u deze via de mail ter attentie brengen
+                van <a href={`mailto:${project.email}`}>{project.email}</a>. We kunnen uw situatie dan nog realistischer meenemen
                 in de digital twin.
             </p>
         </>

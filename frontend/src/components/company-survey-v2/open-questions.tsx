@@ -12,7 +12,7 @@ export const OpenQuestions = ({form, prefix}: { form: UseFormReturn , prefix: st
                 form={form}
                 name={`${prefix}.mainConsumptionProcess`} />
             <TextAreaRow
-                label="Ben u van plan de komende jaren uw energiebehoefte uit te breiden? Zo ja, hoe/in welke mate ongeveer?"
+                label="Bent u van plan de komende jaren uw energiebehoefte uit te breiden? Zo ja, hoe/in welke mate ongeveer?"
                 form={form}
                 name={`${prefix}.expansionPlans`} />
             <TextAreaRow

@@ -6,36 +6,41 @@ export const Trucks = ({form, prefix, project}: { form: UseFormReturn, prefix: s
     const {register, watch} = form
 
     const numTrucks = watch(`${prefix}.numTrucks`)
+    const numElectricTrucks = watch(`${prefix}.numElectricTrucks`)
 
     return (
         <>
-            <h3>Vrachtwagens</h3>
+            <h3>Vrachtwagens/trucks</h3>
             <NumberRow
-                label="Aantal vrachtwagens (die niet mee naar huis gaan)?"
+                label="Aantal vrachtwagens/trucks die 's nachts op deze locatie gestationeerd zijn?"
                 name={`${prefix}.numTrucks`}
                 form={form} />
             {numTrucks > 0 && (
                 <>
                     <NumberRow
-                        label="Hoeveel van die vrachtwagens zijn elektrisch?"
-                        name={`${prefix}.numElectricTrucks`}
-                        form={form} />
-                    <NumberRow
-                        label="Hoeveel laadpunten voor elektrische vrachtwagens zijn er?"
-                        name={`${prefix}.numChargePoints`}
-                        form={form} />
-                    <NumberRow
-                        label="Wat is het maximale laadvermogen van per laadpunt?"
-                        name={`${prefix}.powerPerChargePointKw`}
-                        form={form}
-                        suffix="kW" />
-                    <NumberRow
-                        label="Hoeveel rijden uw vrachtwagens gemiddeld per jaar (grove inschatting)?"
+                        label="Hoeveel rijden uw trucks gemiddeld per dag (ongeveer)?"
                         name={`${prefix}.annualTravelDistancePerTruckKm`}
                         form={form}
-                        suffix="km" />
+                        suffix="km" />                
                     <NumberRow
-                        label="Hoeveel van de brandstof vrachtwagens bent u van plan te elektrificeren de komende 5 jaar?"
+                        label="Hoeveel van uw trucks zijn elektrisch?"
+                        name={`${prefix}.numElectricTrucks`}
+                        form={form} />
+                    {numElectricTrucks > 0 && (
+                        <>
+                            <NumberRow
+                                label="Hoeveel laadpunten voor elektrische trucks zijn er?"
+                                name={`${prefix}.numChargePoints`}
+                                form={form} />
+                            <NumberRow
+                                label="Wat is het maximale laadvermogen van per laadpunt?"
+                                name={`${prefix}.powerPerChargePointKw`}
+                                form={form}
+                                suffix="kW" />
+                         </>  
+                     )}        
+                    <NumberRow
+                        label="Hoeveel (niet-elektrische) trucks bent u van plan te elektrificeren de komende 5 jaar?"
                         name={`${prefix}.numPlannedElectricTrucks`}
                         form={form} />
                     {project === 'De Wieken' && (

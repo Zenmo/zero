@@ -44,11 +44,11 @@ export const Heat = ({form, prefix}: { form: UseFormReturn, prefix: string }) =>
                     suffix="GJ" />
             )}
             <TextAreaRow
-                label="Wisselt u op een andere manier lokaal warmte uit (bijv. met naastgelegen bedrijven)? Zo ja, hoe?"
+                label="Wisselt u lokaal warmte uit (bijv. met naastgelegen bedrijven)? Zo ja, hoe?"
                 form={form}
                 name={`${prefix}.localHeatExchangeDescription`} />
             <FormRow
-                label="Heeft u ongebruikte restwarmte?"
+                label="Heeft u een significante hoeveelheid ongebruikte restwarmte?"
                 name={`${prefix}.hasUnusedResidualHeat`}
                 form={form}
                 WrappedInput={BooleanInput} />
