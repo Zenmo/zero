@@ -2,6 +2,7 @@ import {Controller, UseFormReturn} from "react-hook-form";
 import {BooleanRow} from "../generic/boolean-row";
 import {LabelRow} from "../generic/label-row";
 import {FunctionComponent} from "react";
+import {TextAreaRow} from './generic/text-area-row';
 
 export const OtherVehicles: FunctionComponent<{ form: UseFormReturn, prefix: string}> = ({form, prefix}: { form: UseFormReturn, prefix: string}) => {
     const {register, watch} = form

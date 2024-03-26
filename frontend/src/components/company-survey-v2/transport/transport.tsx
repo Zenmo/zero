@@ -20,7 +20,7 @@ export const Transport = ({form, prefix, project}: {
     return (
         <>
             <h2>6. Mobiliteit</h2>
-            <CommutersVisitors  form={form} prefix={prefix} />
+            
             <FormRow
                 label="Heeft u op dit adres bedrijfsauto's, busjes, vrachtwagens, of andere voertuigen?"
                 WrappedInput={BooleanInput}
@@ -34,6 +34,7 @@ export const Transport = ({form, prefix, project}: {
                     <OtherVehicles form={form} prefix={`${prefix}.otherVehicles`} />
                 </>
             )}
+            <CommutersVisitors  form={form} prefix={prefix} />
         </>
     )
 }
