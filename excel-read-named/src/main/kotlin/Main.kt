@@ -69,13 +69,13 @@ fun getSurveyObject(filename: String): Survey {
                                                                             Electricity(
                                                                                     hasConnection =
                                                                                             true,
-                                                                                    annualElectricityDemandKwh =
+                                                                                    annualElectricityDelivery_kWh =
                                                                                             getNumericField(
                                                                                                             workbook,
                                                                                                             "annualElectricityDeliveryKwh"
                                                                                                     )
                                                                                                     .toInt(),
-                                                                                    annualElectricityProductionKwh =
+                                                                                    annualElectricityFeedIn_kWh =
                                                                                             getNumericField(
                                                                                                             workbook,
                                                                                                             "annualElectricityFeedinKwh"
@@ -111,13 +111,13 @@ fun getSurveyObject(filename: String): Survey {
                                                                                     ),*/
                                                                                     grootverbruik =
                                                                                             CompanyGrootverbruik(
-                                                                                                    contractedConnectionDemandCapacityKw =
+                                                                                                    contractedConnectionDeliveryCapacity_kW =
                                                                                                             getNumericField(
                                                                                                                             workbook,
                                                                                                                             "contractedConnectionDeliveryCapacityKw"
                                                                                                                     )
                                                                                                                     .toInt(),
-                                                                                                    contractedConnectionSupplyCapacityKw =
+                                                                                                    contractedConnectionFeedInCapacity_kW =
                                                                                                             getNumericField(
                                                                                                                             workbook,
                                                                                                                             "contractedConnectionFeedinCapacityKw"
@@ -154,7 +154,7 @@ fun getSurveyObject(filename: String): Survey {
                                                                                             "123456789012345678",
                                                                                     hasConnection =
                                                                                             true,
-                                                                                    annualDemandM3 =
+                                                                                    annualDelivery_m3 =
                                                                                             getNumericField(
                                                                                                             workbook,
                                                                                                             "naturalGasAnnualDeliveryM3"
@@ -175,7 +175,7 @@ fun getSurveyObject(filename: String): Survey {
                                                                         sumGasBoilerKw = 28.8f,
                                                                         sumHeatPumpKw = 0f,
                                                                         sumHybridHeatPumpElectricKw = 0f,
-                                                                        annualDistrictHeatingDemandGj = 300f,
+                                                                        annualDistrictHeatingDelivery_GJ = 300f,
                                                                         localHeatExchangeDescription = "Local heat exchange description",
                                                                         hasUnusedResidualHeat = false,
                                                                     ),
@@ -327,13 +327,13 @@ fun getSurveyObject(filename: String): Survey {
                     GridConnection(
                         electricity = Electricity(
                             hasConnection = true,
-                            annualElectricityDemandKwh = 1000,
-                            annualElectricityProductionKwh = 2000,
+                            annualElectricityDelivery_kWh = 1000,
+                            annualElectricityFeedIn_kWh = 2000,
                             ean = "123456789012345678",
                             quarterHourlyUsage = usageArray,
                             grootverbruik = CompanyGrootverbruik(
-                                contractedConnectionDemandCapacityKw = 100,
-                                contractedConnectionSupplyCapacityKw = 200,
+                                contractedConnectionDeliveryCapacity_kW = 100,
+                                contractedConnectionFeedInCapacity_kW = 200,
                                 physicalCapacityKw = 300,
                             ),
                             kleinverbruik = CompanyKleinverbruik(
@@ -368,7 +368,7 @@ fun getSurveyObject(filename: String): Survey {
                         naturalGas = NaturalGas(
                             ean = "123456789012345678",
                             hasConnection = true,
-                            annualDemandM3 = 3500,
+                            annualDelivery_m3 = 3500,
                             hourlyValuesFiles = listOf(
                                 File(
                                     blobName = "qwerty-uurwaarden-2022.csv",
@@ -384,7 +384,7 @@ fun getSurveyObject(filename: String): Survey {
                             sumGasBoilerKw = 28.8f,
                             sumHeatPumpKw = 0f,
                             sumHybridHeatPumpElectricKw = 0f,
-                            annualDistrictHeatingDemandGj = 300f,
+                            annualDistrictHeatingDelivery_GJ = 300f,
                             localHeatExchangeDescription = "Local heat exchange description",
                             hasUnusedResidualHeat = false,
                         ),
