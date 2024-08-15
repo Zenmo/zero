@@ -7,6 +7,32 @@ import kotlinx.datetime.Instant as KotlinxInstant
 import org.apache.poi.ss.util.AreaReference
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
+fun surveySanityChecks(survey: Survey): List<String> {
+        
+        val errorList: MutableList<String> = mutableListOf()
+        println("Running sanity checks for survey data from company: ${survey.companyName}")
+
+        println("Solar PV production checks")
+
+        for (address:Address in survey.addresses) {
+
+                for (gridConnection:GridConnection in address.gridConnections) {
+        
+                        if (gridConnection.supply.hasSupply ?: false) {
+                                var supply = gridConnection.supply
+                                if ((supply.pvInstalledKwp ?: 0)> 1000) {
+                                        println("More than 1 megaWatt peak PV installed; are you sure? Do you have at least an acre of roof area?")
+                                        //var pvProduction_kWh = survey.addresses.get(0).gridConnections.get(0).electricity.annualElectricityProductionKwh
+                                        var pvProduction_kWh = getNumericField(workbook, "D71")
+                                        println("Total production should be over ${(supply.pvInstalledKwp ?: 0)*900} kWh, actual production: ${pvProduction_kWh}")
+                                        errorList.add("Improbable PV installed power of ${supply.pvInstalledKwp} kWp!")
+                                }
+                        }
+                }
+        }
+        return errorList
+}
+
 fun getSurveyObject(filename: String): Survey {
     // Open file
     // val classloader = Thread.currentThread().contextClassLoader // Wat doet dit?
@@ -25,7 +51,7 @@ fun getSurveyObject(filename: String): Survey {
                                             id = UUID.randomUUID(),
                                             street = getStringField(workbook, "street"),
                                             houseNumber =
-                                                    getNumericField(workbook, "houseNumberCombined")
+                                                    getNumericField(workbook, "houseNumber")
                                                             .toInt(),
                                             city = getStringField(workbook, "city"),
                                             // street =
@@ -62,6 +88,20 @@ fun getSurveyObject(filename: String): Survey {
                                                                                                     getUsageTable(
                                                                                                             workbook,
                                                                                                             "quarterHourlyElectricityDeliveryKwh"
+                                                                                                    )
+                                                                                            ),
+                                                                                quarterHourlyFeedIn_kWh =
+                                                                                            TimeSeries(
+                                                                                                    getUsageTable(
+                                                                                                            workbook,
+                                                                                                            "quarterHourlyElectricityFeedinKwh"
+                                                                                                    )
+                                                                                            ),
+                                                                                quarterHourlyProduction_kWh =
+                                                                                            TimeSeries(
+                                                                                                    getUsageTable(
+                                                                                                            workbook,
+                                                                                                            "quarterHourlyPvProductionKwh"
                                                                                                     )
                                                                                             ),
                                                                                     /*QuarterHourlyElectricityFeedin =
@@ -128,8 +168,7 @@ fun getSurveyObject(filename: String): Survey {
                                                                                             size = 1000,
                                                                                         ),
                                                                                     ),*/
-                                                                                    percentageUsedForHeating =
-                                                                                            100,
+                                                                                    percentageUsedForHeating = getStringField(workbook,"heatProducedByHeatPumpRatio").toInt(),
                                                                             ),
                                                                     /*heat = Heat(
                                                                         heatingTypes = listOf(HeatingType.GAS_BOILER, HeatingType.DISTRICT_HEATING),
@@ -407,7 +446,7 @@ fun getSurveyObject(filename: String): Survey {
             )
         )
     )*/
-
+    surveySanityChecks(realSurvey)
     return realSurvey
 }
 
@@ -458,7 +497,7 @@ fun getUsageTable(workbook: XSSFWorkbook, field: String): List<TimeSeriesDataPoi
                     .booleanCellValue
 
     var usageList: MutableList<TimeSeriesDataPoint> = mutableListOf()
-    println("Table complete? $tableComplete")
+    //println("Table complete? $tableComplete")
     if (tableComplete) {
 
         val numCols = ref.lastCell.col - ref.firstCell.col + 1

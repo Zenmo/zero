@@ -11,8 +11,8 @@ data class TimeSeries (
     // and every hour for gas.
     val dataPoints: List<TimeSeriesDataPoint> = emptyList(),
 ) {
-    fun getFlatDataPoints(): FloatArray =
-        dataPoints.foldIndexed(FloatArray(dataPoints.size)) { i, array, dataPoint ->
-            array[i] = dataPoint.value; array
+    fun getFlatDataPoints(): DoubleArray =
+        dataPoints.foldIndexed(DoubleArray(dataPoints.size)) { i, array, dataPoint ->
+            array[i] = dataPoint.value.toDouble(); array
         }
 }
