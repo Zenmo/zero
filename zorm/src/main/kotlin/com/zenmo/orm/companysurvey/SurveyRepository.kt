@@ -3,6 +3,7 @@ package com.zenmo.orm.companysurvey
 import com.zenmo.orm.blob.BlobPurpose
 import com.zenmo.orm.companysurvey.table.*
 import com.zenmo.orm.companysurvey.table.GridConnectionTable.addressId
+import com.zenmo.orm.user.table.UserProjectTable
 import com.zenmo.orm.user.table.UserTable
 import com.zenmo.zummon.companysurvey.*
 import org.jetbrains.exposed.sql.*
@@ -14,16 +15,17 @@ class SurveyRepository(
         private val db: Database
 ) {
     private fun userIsAllowedCondition(userId: UUID): Op<Boolean>{
-        val unnestProjects = UserTable.projects.function("unnest")
-
-        return CompanySurveyTable.project eq anyFrom(
-            UserTable.select(unnestProjects)
-                .where(UserTable.id eq userId)
+        return CompanySurveyTable.projectId eq anyFrom(
+            UserProjectTable.select(UserProjectTable.projectId)
+                .where { UserProjectTable.userId eq userId }
         )
     }
 
     private fun projectFilter(project: String): Op<Boolean> {
-        return CompanySurveyTable.project.lowerCase() eq project.lowercase()
+        return CompanySurveyTable.projectId eq anyFrom (
+            ProjectTable.select(ProjectTable.id)
+                .where(ProjectTable.name.lowerCase() eq project.lowercase())
+        )
     }
 
     fun getHessenpoortSurveys(): List<Survey> {
@@ -117,7 +119,9 @@ class SurveyRepository(
 
     fun getSurveys(filter: Op<Boolean> = Op.TRUE): List<Survey> {
         return transaction(db) {
-            val surveysWithoutAddresses = CompanySurveyTable.selectAll()
+            val surveysWithoutAddresses = CompanySurveyTable
+                .join(ProjectTable, JoinType.INNER)
+                .selectAll()
                 .where {
                     filter
                 }
@@ -205,7 +209,7 @@ class SurveyRepository(
         return Survey(
             id = row[CompanySurveyTable.id],
             created = row[CompanySurveyTable.created],
-            zenmoProject = row[CompanySurveyTable.project],
+            zenmoProject = row[ProjectTable.name],
             companyName = row[CompanySurveyTable.companyName],
             personName = row[CompanySurveyTable.personName],
             email = row[CompanySurveyTable.email],
@@ -252,8 +256,9 @@ class SurveyRepository(
             electricity = Electricity(
                 hasConnection = row[GridConnectionTable.hasElectricityConnection],
                 ean = row[GridConnectionTable.electricityEan],
-                annualElectricityDelivery_kWh = row[GridConnectionTable.annualElectricityDemandKwh]?.toInt(),
-                annualElectricityFeedIn_kWh = row[GridConnectionTable.annualElectricityProductionKwh]?.toInt(),
+                annualElectricityDelivery_kWh = row[GridConnectionTable.annualElectricityDelivery_kWh]?.toInt(),
+                annualElectricityFeedIn_kWh = row[GridConnectionTable.annualElectricityFeedIn_kWh]?.toInt(),
+                kleinverbruikOrGrootverbruik = row[GridConnectionTable.kleinverbruikOrGrootverbruik],
                 kleinverbruik = CompanyKleinverbruik(
                     connectionCapacity = row[GridConnectionTable.kleinverbruikElectricityConnectionCapacity]?.let {
                         KleinverbruikElectricityConnectionCapacity.valueOf(
@@ -267,8 +272,8 @@ class SurveyRepository(
                     },
                 ),
                 grootverbruik = CompanyGrootverbruik(
-                    contractedConnectionDeliveryCapacity_kW = row[GridConnectionTable.grootverbruikContractedDemandCapacityKw]?.toInt(),
-                    contractedConnectionFeedInCapacity_kW = row[GridConnectionTable.grootverbruikContractedSupplyCapacityKw]?.toInt(),
+                    contractedConnectionDeliveryCapacity_kW = row[GridConnectionTable.grootverbruikContractedDeliveryCapacityKw]?.toInt(),
+                    contractedConnectionFeedInCapacity_kW = row[GridConnectionTable.grootverbruikContractedFeedInCapacityKw]?.toInt(),
                     physicalCapacityKw = row[GridConnectionTable.grootverbruikPhysicalCapacityKw]?.toInt(),
                 ),
                 gridExpansion = GridExpansion(
@@ -293,7 +298,7 @@ class SurveyRepository(
             naturalGas = NaturalGas(
                 hasConnection = row[GridConnectionTable.hasNaturalGasConnection],
                 ean = row[GridConnectionTable.naturalGasEan],
-                annualDelivery_m3 = row[GridConnectionTable.naturalGasAnnualDemandM3]?.toInt(),
+                annualDelivery_m3 = row[GridConnectionTable.naturalGasAnnualDeliveryM3]?.toInt(),
                 percentageUsedForHeating = row[GridConnectionTable.percentageNaturalGasForHeating]?.toInt(),
             ),
             heat = Heat(
@@ -301,7 +306,7 @@ class SurveyRepository(
                 sumGasBoilerKw = row[GridConnectionTable.sumGasBoilerKw],
                 sumHeatPumpKw = row[GridConnectionTable.sumHeatPumpKw],
                 sumHybridHeatPumpElectricKw = row[GridConnectionTable.sumHybridHeatPumpElectricKw],
-                annualDistrictHeatingDelivery_GJ = row[GridConnectionTable.annualDistrictHeatingDemandGj],
+                annualDistrictHeatingDelivery_GJ = row[GridConnectionTable.annualDistrictHeatingDeliveryGj],
                 localHeatExchangeDescription = row[GridConnectionTable.localHeatExchangeDescription],
                 hasUnusedResidualHeat = row[GridConnectionTable.hasUnusedResidualHeat],
             ),
@@ -362,7 +367,8 @@ class SurveyRepository(
             val surveyId = CompanySurveyTable.upsertReturning {
                 it[id] = survey.id
                 it[created] = survey.created
-                it[project] = survey.zenmoProject
+                it[projectId] = ProjectTable.select(ProjectTable.id)
+                    .where { ProjectTable.name eq survey.zenmoProject }
                 it[companyName] = survey.companyName
                 it[personName] = survey.personName
                 it[email] = survey.email
@@ -444,12 +450,13 @@ class SurveyRepository(
                 // electricity
                 this[GridConnectionTable.hasElectricityConnection] = gridConnection.electricity.hasConnection
                 this[GridConnectionTable.electricityEan] = gridConnection.electricity.ean
-                this[GridConnectionTable.annualElectricityDemandKwh] = gridConnection.electricity.annualElectricityDelivery_kWh?.toUInt()
-                this[GridConnectionTable.annualElectricityProductionKwh] = gridConnection.electricity.annualElectricityFeedIn_kWh?.toUInt()
+                this[GridConnectionTable.annualElectricityDelivery_kWh] = gridConnection.electricity.annualElectricityDelivery_kWh?.toUInt()
+                this[GridConnectionTable.annualElectricityFeedIn_kWh] = gridConnection.electricity.annualElectricityFeedIn_kWh?.toUInt()
+                this[GridConnectionTable.kleinverbruikOrGrootverbruik] = gridConnection.electricity.kleinverbruikOrGrootverbruik
                 this[GridConnectionTable.kleinverbruikElectricityConnectionCapacity] = gridConnection.electricity.kleinverbruik?.connectionCapacity
                 this[GridConnectionTable.kleinverbuikElectricityConsumptionProfile] = gridConnection.electricity.kleinverbruik?.consumptionProfile
-                this[GridConnectionTable.grootverbruikContractedDemandCapacityKw] = gridConnection.electricity.grootverbruik?.contractedConnectionDeliveryCapacity_kW?.toUInt()
-                this[GridConnectionTable.grootverbruikContractedSupplyCapacityKw] = gridConnection.electricity.grootverbruik?.contractedConnectionFeedInCapacity_kW?.toUInt()
+                this[GridConnectionTable.grootverbruikContractedDeliveryCapacityKw] = gridConnection.electricity.grootverbruik?.contractedConnectionDeliveryCapacity_kW?.toUInt()
+                this[GridConnectionTable.grootverbruikContractedFeedInCapacityKw] = gridConnection.electricity.grootverbruik?.contractedConnectionFeedInCapacity_kW?.toUInt()
                 this[GridConnectionTable.grootverbruikPhysicalCapacityKw] = gridConnection.electricity.grootverbruik?.physicalCapacityKw?.toUInt()
                 this[GridConnectionTable.hasExpansionRequestAtGridOperator] = gridConnection.electricity.gridExpansion.hasRequestAtGridOperator
                 this[GridConnectionTable.expansionRequestKW] = gridConnection.electricity.gridExpansion.requestedKW?.toUInt()
@@ -471,7 +478,7 @@ class SurveyRepository(
                 // natural gas
                 this[GridConnectionTable.hasNaturalGasConnection] = gridConnection.naturalGas.hasConnection
                 this[GridConnectionTable.naturalGasEan] = gridConnection.naturalGas.ean
-                this[GridConnectionTable.naturalGasAnnualDemandM3] = gridConnection.naturalGas.annualDelivery_m3?.toUInt()
+                this[GridConnectionTable.naturalGasAnnualDeliveryM3] = gridConnection.naturalGas.annualDelivery_m3?.toUInt()
                 this[GridConnectionTable.percentageNaturalGasForHeating] = gridConnection.naturalGas.percentageUsedForHeating?.toUInt()
 
                 // heat
@@ -479,7 +486,7 @@ class SurveyRepository(
                 this[GridConnectionTable.sumGasBoilerKw] = gridConnection.heat.sumGasBoilerKw
                 this[GridConnectionTable.sumHeatPumpKw] = gridConnection.heat.sumHeatPumpKw
                 this[GridConnectionTable.sumHybridHeatPumpElectricKw] = gridConnection.heat.sumHybridHeatPumpElectricKw
-                this[GridConnectionTable.annualDistrictHeatingDemandGj] = gridConnection.heat.annualDistrictHeatingDelivery_GJ
+                this[GridConnectionTable.annualDistrictHeatingDeliveryGj] = gridConnection.heat.annualDistrictHeatingDelivery_GJ
                 this[GridConnectionTable.localHeatExchangeDescription] = gridConnection.heat.localHeatExchangeDescription
                 this[GridConnectionTable.hasUnusedResidualHeat] = gridConnection.heat.hasUnusedResidualHeat
 

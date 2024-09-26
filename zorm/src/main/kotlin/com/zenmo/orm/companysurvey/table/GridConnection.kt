@@ -2,9 +2,9 @@ package com.zenmo.orm.companysurvey.table
 
 import com.zenmo.orm.dbutil.KleinverbruikPGEnum
 import com.zenmo.orm.dbutil.PGEnum
+import com.zenmo.orm.dbutil.ZenmoUUIDTable
 import com.zenmo.orm.dbutil.enumArray
 import com.zenmo.zummon.companysurvey.*
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.Sequence
 import org.jetbrains.exposed.sql.nextIntVal
 
@@ -13,9 +13,7 @@ import org.jetbrains.exposed.sql.nextIntVal
  */
 val gridConnectionSequence = Sequence("grid_connection_sequence")
 
-object GridConnectionTable: Table("grid_connection") {
-    val id = uuid("id").autoGenerate()
-    override val primaryKey = PrimaryKey(id)
+object GridConnectionTable: ZenmoUUIDTable("grid_connection") {
     val addressId = uuid("address_id").references(AddressTable.id)
 
     val sequence = integer("sequence").defaultExpression(gridConnectionSequence.nextIntVal())
@@ -35,9 +33,14 @@ object GridConnectionTable: Table("grid_connection") {
      */
     val hasElectricityConnection = bool("has_electricity_connection").nullable()
     val electricityEan = varchar("electricity_ean", 18)
-    val annualElectricityDemandKwh = uinteger("annual_electricity_demand_kwh").nullable()
-    val annualElectricityProductionKwh = uinteger("annual_electricity_production_kwh").nullable()
+    val annualElectricityDelivery_kWh = uinteger("annual_electricity_delivery_kwh").nullable()
+    val annualElectricityFeedIn_kWh = uinteger("annual_electricity_feed_in_kwh").nullable()
 
+    val kleinverbruikOrGrootverbruik = customEnumeration(
+        "kleinverbruik_or_grootverbruik",
+        KleinverbruikOrGrootverbruik::class.simpleName,
+        fromDb = { KleinverbruikOrGrootverbruik.valueOf(it as String) },
+        toDb = { PGEnum(KleinverbruikOrGrootverbruik::class.simpleName!!, it) }).nullable()
     val kleinverbruikElectricityConnectionCapacity = customEnumeration(
         "kleinverbuik_electricity_connection_capacity",
         KleinverbruikElectricityConnectionCapacity::class.simpleName,
@@ -50,8 +53,8 @@ object GridConnectionTable: Table("grid_connection") {
         fromDb = { KleinverbruikElectricityConsumptionProfile.valueOf(it as String) },
         toDb = { PGEnum(KleinverbruikElectricityConsumptionProfile::class.simpleName!!, it) }).nullable()
 
-    val grootverbruikContractedDemandCapacityKw = uinteger("grootverbruik_contracted_demand_capacity_kw").nullable()
-    val grootverbruikContractedSupplyCapacityKw = uinteger("grootverbruik_contracted_supply_capacity_kw").nullable()
+    val grootverbruikContractedDeliveryCapacityKw = uinteger("grootverbruik_contracted_delivery_capacity_kw").nullable()
+    val grootverbruikContractedFeedInCapacityKw = uinteger("grootverbruik_contracted_feed_in_capacity_kw").nullable()
     val grootverbruikPhysicalCapacityKw = uinteger("grootverbruik_physical_capacity_kw").nullable()
     val hasExpansionRequestAtGridOperator = bool("has_expansion_request_at_grid_operator").nullable()
     val expansionRequestKW = uinteger("expansion_request_kw").nullable()
@@ -89,7 +92,7 @@ object GridConnectionTable: Table("grid_connection") {
      */
     val hasNaturalGasConnection = bool("has_natural_gas_connection").nullable()
     val naturalGasEan = varchar("natural_gas_ean", 18)
-    val naturalGasAnnualDemandM3 = uinteger("natural_gas_annual_demand_m3").nullable()
+    val naturalGasAnnualDeliveryM3 = uinteger("natural_gas_annual_delivery_m3").nullable()
     val percentageNaturalGasForHeating = uinteger("percentage_natural_gas_for_heating").nullable()
 
     /**
@@ -99,7 +102,7 @@ object GridConnectionTable: Table("grid_connection") {
     val sumGasBoilerKw = float("combined_gas_boiler_kw").nullable()
     val sumHeatPumpKw = float("combined_heat_pump_kw").nullable()
     val sumHybridHeatPumpElectricKw = float("combined_hybrid_heat_pump_electric_kw").nullable()
-    val annualDistrictHeatingDemandGj = float("annual_district_heating_demand_gj").nullable()
+    val annualDistrictHeatingDeliveryGj = float("annual_district_heating_delivery_gj").nullable()
     val localHeatExchangeDescription = varchar("local_heat_exchange_description", 1000)
     val hasUnusedResidualHeat = bool("has_unused_residual_heat").nullable()
 

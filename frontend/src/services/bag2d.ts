@@ -1,8 +1,7 @@
 import {BBox2d} from '@turf/helpers/dist/js/lib/geojson'
-import {Polygon} from 'geojson'
+import {Feature, Polygon} from "geojson"
 import {LatLngBounds} from 'leaflet'
 import proj4 from 'proj4'
-import unionBy from 'lodash/unionBy'
 
 interface ResponseBody {
     type: 'FeatureCollection',
@@ -14,13 +13,15 @@ interface ResponseBody {
     bbox: BBox2d,
 }
 
-export interface Bag2DPand {
-    type: 'Feature',
-    id: string // e.g. pand.97faabcf-a317-4c15-ae42-d1b8d04beb7d
-    properties: Bag2DPandProperties,
-    bbox: BBox2d,
-    geometry: Polygon,
-}
+export type Bag2DPand = Feature<Polygon, Bag2DPandProperties>
+
+// export interface Bag2DPand {
+//     type: 'Feature',
+//     id: string // e.g. pand.97faabcf-a317-4c15-ae42-d1b8d04beb7d
+//     properties: Bag2DPandProperties,
+//     bbox: BBox2d,
+//     geometry: Polygon,
+// }
 
 export interface Bag2DPandProperties {
     identificatie: string, // numeric

@@ -3,12 +3,12 @@ package com.zenmo.zummon.companysurvey
 import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
 import kotlinx.serialization.Serializable
-import com.zenmo.zummon.UuidSerializer
+import com.zenmo.zummon.BenasherUuidSerializer
 import kotlinx.datetime.*
-import kotlinx.datetime.format.byUnicodePattern
-import kotlinx.datetime.format.char
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
+import kotlinx.serialization.json.Json
 
 /**
  * Root object
@@ -17,7 +17,7 @@ import kotlin.js.JsExport
 @JsExport
 @Serializable
 data class Survey(
-    @Serializable(with = UuidSerializer::class)
+    @Serializable(with = BenasherUuidSerializer::class)
     val id: Uuid = uuid4(),
     val created: Instant = Clock.System.now().roundToMilliseconds(),
     val zenmoProject: String,
@@ -25,8 +25,8 @@ data class Survey(
     val personName: String,
     val email: String = "",
     val dataSharingAgreed: Boolean = false,
-
     val addresses: List<Address>,
+    val project: Project? = null,
 ) {
     /**
      * For JavaScript
@@ -59,6 +59,84 @@ data class Survey(
     public fun getSingleGridConnection(): GridConnection {
         return addresses.firstAndOnly().gridConnections.firstAndOnly()
     }
+
+    /**
+     * Adds a Pand ID when it's not present or removes it if it is.
+     * Only works for surveys with exactly one grid connection.
+     */
+    public fun togglePandId(pandId: PandID): Survey {
+        val address = addresses.firstAndOnly()
+        val gridConnection = address.gridConnections.firstAndOnly()
+        var pandIds = gridConnection.pandIds
+
+        if (pandIds.contains(pandId)) {
+            pandIds = gridConnection.pandIds - pandId
+        } else {
+            pandIds = gridConnection.pandIds + pandId
+        }
+
+        return this.copy(
+            addresses = listOf(
+                address.copy(
+                    gridConnections = listOf(
+                        gridConnection.copy(
+                            pandIds = gridConnection.pandIds + pandId
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    /**
+     * Add Pand ID to survey with exactly one grid connection.
+     */
+    public fun withPandId(pandId: PandID): Survey {
+        val address = addresses.firstAndOnly()
+        val gridConnection = address.gridConnections.firstAndOnly()
+
+        return this.copy(
+            addresses = listOf(
+                address.copy(
+                    gridConnections = listOf(
+                        gridConnection.copy(
+                            pandIds = gridConnection.pandIds + pandId
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    /**
+     * Remove Pand ID from survey with exactly one grid connection.
+     */
+    public fun withoutPandId(pandId: PandID): Survey {
+        val address = addresses.firstAndOnly()
+        val gridConnection = address.gridConnections.firstAndOnly()
+
+        return this.copy(
+            addresses = listOf(
+                address.copy(
+                    gridConnections = listOf(
+                        gridConnection.copy(
+                            pandIds = gridConnection.pandIds - pandId
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    public fun toPrettyJson(): String {
+        val prettyJson = Json { // this returns the JsonBuilder
+            prettyPrint = true
+            // optional: specify indent
+            prettyPrintIndent = "    "
+        }
+        return prettyJson.encodeToString(Survey.serializer(), this)
+    }
 }
 
 @OptIn(ExperimentalJsExport::class)
@@ -87,3 +165,24 @@ private fun <T> List<T>.firstAndOnly(): T {
     }
     return this.first()
 }
+
+@OptIn(ExperimentalJsExport::class)
+@JsExport
+@Serializable
+data class SurveyWithErrors(
+    val survey: Survey,
+    val errors: List<String>,
+) {
+    companion object {
+        fun fromJson(jsonString: String): SurveyWithErrors {
+            return kotlinx.serialization.json.Json.decodeFromString(SurveyWithErrors.serializer(), jsonString)
+        }
+    }
+
+    fun withSurvey(survey: Survey) = SurveyWithErrors(survey, errors)
+
+    fun withPandId(pandId: PandID) = SurveyWithErrors(survey.withPandId(pandId), errors)
+
+    fun withoutPandId(pandId: PandID) = SurveyWithErrors(survey.withoutPandId(pandId), errors)
+}
+

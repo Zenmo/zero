@@ -6,7 +6,9 @@ import com.zenmo.orm.dbutil.createEnumTypeSql
 import com.zenmo.orm.dbutil.createKleinverbruikEnumTypeSql
 import com.zenmo.orm.deeplink.DeeplinkTable
 import com.zenmo.orm.energieprestatieonline.RawPandTable
+import com.zenmo.orm.user.ProjectScope
 import com.zenmo.orm.user.table.UserTable
+import com.zenmo.orm.user.table.UserProjectTable
 import com.zenmo.zummon.companysurvey.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -14,12 +16,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 val enums = listOf(
     KleinverbruikElectricityConsumptionProfile::class.java,
+    KleinverbruikOrGrootverbruik::class.java,
     HeatingType::class.java,
     PVOrientation::class.java,
     BlobPurpose::class.java,
     MissingPvReason::class.java,
     TimeSeriesType::class.java,
     TimeSeriesUnit::class.java,
+    ProjectScope::class.java,
 )
 
 val tables = arrayOf(
@@ -29,7 +33,9 @@ val tables = arrayOf(
     TimeSeriesTable,
     RawPandTable,
     UserTable,
+    UserProjectTable,
     DeeplinkTable,
+    ProjectTable,
 )
 
 fun createSchema(db: Database) {
