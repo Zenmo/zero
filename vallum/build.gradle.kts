@@ -63,6 +63,11 @@ tasks.test {
     //jvmArgs("-agentlib:jdwp=transport=dt_socket,server=n,address=172.27.0.1:5005,suspend=y")
 }
 
+tasks.named<ShadowJar>("shadowJar") {
+    relocate("com.fasterxml.jackson", "com.zenmo.vallum.shaded.jackson")
+    mergeServiceFiles()
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
